@@ -43,20 +43,20 @@ public class AfinityPropogeyion_Titova {
         double[] ResultsAll = new double[5];
 
         // Считываем граф пользователей
-        read_training_text_edges("/home/boyko_mihail/NetBeansProjects/course_Ml/Boyko/AP/Gowalla_edges.txt", graph);
+        read_training_text_edges("/home/boyko_mihail/NetBeansProjects/course_Ml/Titova/AP/Gowalla_edges.txt", graph);
 
         //Вектор локаций
         ArrayList<Integer>[] vecOfLocation = new ArrayList[graph.n];
 
         // Считываем Локализации по пользователям
-        readLocation("/home/boyko_mihail/NetBeansProjects/course_Ml/Boyko/AP/Gowalla_totalCheckins.txt", vecOfLocation);
+        readLocation("/home/titova_ekaterina/course_Ml/Titova/AP/Gowalla_totalCheckins.txt", vecOfLocation);
 
         int[] examplar = new int[graph.n]; // К какому классу принадлежит i-ый экземпляр
 
         // Кластеризация
         clusteringGraph(graph, examplar, maxit, damping);
         
-        FileWriter csvWriter = new FileWriter("/home/boyko_mihail/NetBeansProjects/course_Ml/Titova/AfinityPropogeyion_Titova/Results_Hist.csv");
+        FileWriter csvWriter = new FileWriter("/home/titova_ekaterina/course_Ml/Titova/AfinityPropogeyion_Titova/Results_Hist.csv");
         csvWriter.append(",");
         for (int i = 0; i < examplar.length; ++i) {
             csvWriter.append(examplar[i] + ",");
@@ -181,7 +181,7 @@ public class AfinityPropogeyion_Titova {
         Statistic stResults = Statistics.calcMeanAndSig(Results);
         Statistic stResultsAll = Statistics.calcMeanAndSig(ResultsAll);
 
-        FileWriter csvWriter2 = new FileWriter("/home/boyko_mihail/NetBeansProjects/course_Ml/Titova/AfinityPropogeyion_Titova/Results_Table.csv");
+        FileWriter csvWriter2 = new FileWriter("/home/titova_ekaterina/course_Ml/Titova/AfinityPropogeyion_Titova/Results_Table.csv");
 
         csvWriter2.append(
                 ",1,2,3,4,5,E,SD,\n");

@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package afinitypropogeyion_titova;
+
 public class Statistics{
     
     public static Statistic calcMeanAndSig( double[] vector ){

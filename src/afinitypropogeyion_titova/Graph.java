@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 /**
  *
- * @author boyko_mihail
+ * @author titova_ekaterina
  */
 public class Graph {
     public int n; // the number of vertices

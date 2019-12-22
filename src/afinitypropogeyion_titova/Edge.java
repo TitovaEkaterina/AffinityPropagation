@@ -7,7 +7,7 @@ package afinitypropogeyion_titova;
 
 /**
  *
- * @author boyko_mihail
+ * @author titova_ekaterina
  */
 public class Edge {
     
