@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package afinitypropogeyion_titova;
 
 import java.awt.EventQueue;
@@ -37,13 +33,13 @@ public class AfinityPropogeyion_Titova {
     public static void main(String[] args) throws IOException {
 
         Graph graph = new Graph(); // граф пользователей
-        int maxit = 40;
+        int maxit = 50;
         double damping = 0.001;
         double[] Results = new double[5];
         double[] ResultsAll = new double[5];
 
         // Считываем граф пользователей
-        read_training_text_edges("/home/boyko_mihail/NetBeansProjects/course_Ml/Titova/AP/Gowalla_edges.txt", graph);
+        read_training_text_edges("/home/titova_ekaterina/course_Ml/Titova/AP/Gowalla_edges.txt", graph);
 
         //Вектор локаций
         ArrayList<Integer>[] vecOfLocation = new ArrayList[graph.n];
