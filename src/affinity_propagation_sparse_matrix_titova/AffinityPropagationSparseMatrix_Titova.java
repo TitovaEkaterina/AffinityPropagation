@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package afinitypropogsparsematrix_titova;
+package affinity_propagation_sparse_matrix_titova;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -23,16 +23,19 @@ import java.util.logging.Logger;
  *
  * @author titova_ekaterina
  */
-public class AfinityPropogSparseMatrix_Titova {
+public class AffinityPropagationSparseMatrix_Titova {
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException {
 
+        // Количество итераций
         int maxit = 10;
         int countOfExemplar = 0;
+        //Результат рекомендации локации на топах, вычесленных на кластерах
         double[] Results = new double[5];
+        //Результат рекомендации на топах, вычесленных по всей выборке
         double[] ResultsAll = new double[5];
 
         SparseMatrix r = new SparseMatrix();
@@ -40,10 +43,10 @@ public class AfinityPropogSparseMatrix_Titova {
         SparseMatrix S = new SparseMatrix();
         System.out.println("statrt");
         // Считываем граф пользователей
-        countOfExemplar = read_training_text_edges("/home/titova_ekaterina/course_Ml/AP/Gowalla_edges.txt", S);
+        countOfExemplar = read_training_text_edges("/home/titova_ekaterina/course_Ml/AfinityPropogSparseMatrix_Titova/Gowalla_edges.txt", S);
 
         System.out.println("end");
-        // TO DO
+
         for (int i = 0; i < maxit; ++i) {
 
             System.out.println("i = " + i);
@@ -58,18 +61,21 @@ public class AfinityPropogSparseMatrix_Titova {
         }
         System.out.println("end 2");
 
+        // массив кластеризованных пользователей arrayExemplar[i] - содержит номер кластера для пользователя с номером i
         int[] arrayExemplar = new int[countOfExemplar];
-        //Вектор локаций
-        ArrayList<Integer>[] vecOfLocation = new ArrayList[countOfExemplar];
-        // Считываем Локализации по пользователям
-        readLocation("/home/titova_ekaterina/course_Ml/AP/Gowalla_totalCheckins.txt", vecOfLocation);
-
+        
         SparseMatrix argMaxMatrix = a.plus(r);
 
         for (int i = 0; i < countOfExemplar; ++i) {
             arrayExemplar[i] = argMaxMatrix.argMaxByCol(argMaxMatrix, i);
         }
+        
+        //Вектор локаций
+        ArrayList<Integer>[] vecOfLocation = new ArrayList[countOfExemplar];
+        // Считываем Локализации по пользователям
+        readLocation("/home/titova_ekaterina/course_Ml/AfinityPropogSparseMatrix_Titova/Gowalla_totalCheckins.txt", vecOfLocation);
 
+        // Записываем распределение кластеров в файл для отрисовки гистограм
         FileWriter csvWriter = new FileWriter("/home/titova_ekaterina/course_Ml/AfinityPropogSparseMatrix_Titova/Results_Hist.csv");
         csvWriter.append(",");
         for (int i = 0; i < arrayExemplar.length; ++i) {
@@ -86,15 +92,20 @@ public class AfinityPropogSparseMatrix_Titova {
         }
         Collections.shuffle(indexes, new Random());
 
+        //Количество пользователей в тестовой выборке
         int crossValCount = arrayExemplar.length / 5;
 
+        //КроссВалидация
         for (int cr = 0; cr < 5; cr++) {
 
+            // Пользователи кластеризованные
             ArrayList<Integer> examplarTrain = new ArrayList();
             ArrayList<Integer> examplarTest = new ArrayList();
+            //Локации
             ArrayList<Integer>[] vecTrain = new ArrayList[arrayExemplar.length - crossValCount];
             ArrayList<Integer>[] vecTest = new ArrayList[crossValCount];
 
+            //Запись train и test выборок
             int indexTrain = 0;
             int indexTest = 0;
             for (int j = 0; j < indexes.size(); j++) {
@@ -109,6 +120,7 @@ public class AfinityPropogSparseMatrix_Titova {
                 }
             }
 
+            // Считаем топ локаций по всему test набору
             TreeMap<Integer, Integer> topByTrainAll = new TreeMap();
             for (int i = 0; i < vecTrain.length; ++i) {
                 if (vecTrain[i] != null) {
@@ -122,10 +134,11 @@ public class AfinityPropogSparseMatrix_Titova {
                 }
             }
 
+            // Отбираем 10-ку самых популярных локаций по всем из train
             TreeMap<Integer, Integer> TOPLocationclusterAllTrain;
             TOPLocationclusterAllTrain = putFirstEntries(10, sortByValues(topByTrainAll));
 
-            // Считаем количества вхождений мест для каждого кластера
+            // Считаем количества вхождений локаций для каждого кластера в train
             TreeMap<Integer, TreeMap<Integer, Integer>> topByTrainInEachCluster = new TreeMap();
             for (int i = 0; i < vecTrain.length; ++i) {
                 if (vecTrain[i] != null) {
@@ -156,8 +169,11 @@ public class AfinityPropogSparseMatrix_Titova {
             }
 
             // Считаем качество разбиения
+            //Сумма очков на топах локаций из кластеров
             double AllSumm = 0;
+            //сумма очков за рекомендации на общих топ 10
             double AllSummTopGlobal = 0;
+            //Хранит количество локаций для тестовых пользователей
             int sizeLocation = 0;
             for (int i = 0; i < vecTest.length; ++i) {
                 if (vecTest[i] != null) {
@@ -192,6 +208,7 @@ public class AfinityPropogSparseMatrix_Titova {
             System.out.println("--------------------------");
         }
 
+        //Считаем статистики ( среднее и дисперсию )
         Statistic stResults = Statistics.calcMeanAndSig(Results);
         Statistic stResultsAll = Statistics.calcMeanAndSig(ResultsAll);
 
@@ -229,7 +246,7 @@ public class AfinityPropogSparseMatrix_Titova {
                 }
             }
         } catch (Exception ex) {
-            Logger.getLogger(AfinityPropogSparseMatrix_Titova.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AffinityPropagationSparseMatrix_Titova.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return countOfExemplar;
@@ -252,11 +269,12 @@ public class AfinityPropogSparseMatrix_Titova {
                 }
             }
         } catch (Exception ex) {
-            Logger.getLogger(AfinityPropogSparseMatrix_Titova.class
+            Logger.getLogger(AffinityPropagationSparseMatrix_Titova.class
                     .getName()).log(Level.SEVERE, null, ex);
         }
     }
 
+    // сортировка TreeMap по значению
     public static <K, V extends Comparable<V>> TreeMap<K, V>
             sortByValues(final Map<K, V> map) {
         Comparator<K> valueComparator
@@ -274,6 +292,7 @@ public class AfinityPropogSparseMatrix_Titova {
         return sortedByValues;
     }
 
+    // создание TreeMap из max первых элементов из TreeMap source
     public static TreeMap<Integer, Integer> putFirstEntries(int max, TreeMap<Integer, Integer> source) {
         int count = 0;
         TreeMap<Integer, Integer> target = new TreeMap<Integer, Integer>();

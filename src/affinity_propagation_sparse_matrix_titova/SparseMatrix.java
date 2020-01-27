@@ -3,9 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package afinitypropogsparsematrix_titova;
+package affinity_propagation_sparse_matrix_titova;
 
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -20,6 +19,8 @@ public class SparseMatrix {
 
     private TreeMap<Integer, Float> sumByRow;
     private TreeMap<Integer, Float> sumByCol;
+    private TreeMap<Integer, Float> sumBigestThemZeroElementsByRow;
+    private TreeMap<Integer, Float> sumBigestThemZeroElementsByCol;
     private TreeMap<Integer, Element> maxByRow;
     private TreeMap<Integer, Element> maxByCol;
     private TreeMap<Integer, Element> secondMaxByRow;
@@ -96,27 +97,35 @@ public class SparseMatrix {
             maxByRow.put(element.row, element);
             secondMaxByRow.put(element.row, new Element(element.row, element.col == 0 ? 1 : 0, 0));
             sumByRow.put(element.row, 0.0f);
+            sumBigestThemZeroElementsByRow.put(element.row, 0.0f);
         }
         if (element.value > maxByRow.get(element.row).value) {
             secondMaxByRow.replace(element.row, maxByRow.get(element.row));
             maxByRow.replace(element.row, element);
         }
+        sumByRow.replace(element.row, sumByRow.get(element.row)  - getElement(element.row, element.col).value + element.value);
+        if (element.value > 0) {
+            sumBigestThemZeroElementsByRow.replace(element.row, sumBigestThemZeroElementsByRow.get(element.row) - getElement(element.row, element.col).value + element.value);
+        }
         listByRows.get(element.row).put(element.col, element);
-        sumByRow.replace(element.row, sumByRow.get(element.row) + element.value);
 
         if (!listByCols.containsKey(element.col)) {
             listByCols.put(element.col, new TreeMap<Integer, Element>());
             maxByCol.put(element.col, element);
             secondMaxByCol.put(element.col, new Element(element.row == 0 ? 1 : 0, element.col, 0));
             sumByCol.put(element.col, 0.0f);
+            sumBigestThemZeroElementsByCol.put(element.row, 0.0f);
         }
         if (element.value > maxByCol.get(element.col).value) {
             secondMaxByCol.replace(element.col, maxByCol.get(element.col));
             maxByCol.replace(element.col, element);
         }
-
-        listByCols.get(element.col).put(element.row, element);
         sumByCol.replace(element.col, sumByCol.get(element.col) + element.value);
+        if (element.value > 0) {
+            sumBigestThemZeroElementsByCol.replace(element.col, sumBigestThemZeroElementsByCol.get(element.col) - getElement(element.row, element.col).value + element.value);
+        }
+        listByCols.get(element.col).put(element.row, element);
+        
 
     }
 
@@ -225,6 +234,26 @@ public class SparseMatrix {
             return 0;
         }
     }
+    
+    public float summBigestThenZeroElementsByRow(int i, int k) {
+        if (this.sumBigestThemZeroElementsByRow.containsKey(k)){
+            return this.sumBigestThemZeroElementsByRow.get(k) 
+                    - (this.getElement(k, k).value > 0 ? this.getElement(k, k).value : 0) 
+                    - (this.getElement(k, i).value > 0 ? this.getElement(k, i).value : 0);
+        } else {
+            return 0;
+        }
+    }
+
+    public float summBigestThenZeroElementsByCol(int i, int k) {
+        if (this.sumBigestThemZeroElementsByCol.containsKey(k)){
+            return this.sumBigestThemZeroElementsByCol.get(k) -
+                    - (this.getElement(k, k).value > 0 ? this.getElement(k, k).value : 0) 
+                    - (this.getElement(i, k).value > 0 ? this.getElement(i, k).value : 0);
+        } else {
+            return 0;
+        }
+    }
 
     public int argMaxByCol(SparseMatrix sparseMatrix, int i) {
         int argMax = 0;
@@ -269,7 +298,7 @@ public class SparseMatrix {
                             new Element(
                                     element.getValue().row,
                                     element.getValue().col,
-                                    this.listByRows.get(element.getValue().col).get(element.getValue().col).value + this.summByRow(
+                                    this.listByRows.get(element.getValue().col).get(element.getValue().col).value + this.summBigestThenZeroElementsByRow(
                                             element.getValue().row,
                                             element.getValue().col
                                     )
@@ -280,7 +309,7 @@ public class SparseMatrix {
                             new Element(
                                     element.getValue().row,
                                     element.getValue().col,
-                                    this.summByRow(
+                                    this.summBigestThenZeroElementsByRow(
                                             -1,
                                             element.getValue().col
                                     )
